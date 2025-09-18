@@ -1,0 +1,191 @@
+🚀 2-Week Roadmap – AI-Powered SaaS Dashboard (MERN Stack)
+🔹 Week 1 – Core SaaS Foundation
+Day 1 – Project Setup
+
+Setup repo structure: /client (React), /server (Node/Express).
+
+Configure MongoDB connection.
+
+Setup ESLint/Prettier for clean code.
+
+Install dependencies:
+
+Backend: express, mongoose, bcrypt, jsonwebtoken, cors, dotenv
+
+Frontend: react, axios, react-router-dom, tailwind, recharts (charts)
+
+📚 Resources:
+
+MERN Boilerplate Setup
+
+Day 2 – Auth (JWT)
+
+Create User model (name, email, password hash, role).
+
+Signup/Login APIs.
+
+JWT + Refresh tokens.
+
+Store token in httpOnly cookies for security.
+
+Frontend: Login/Register pages + protected routes.
+
+📚 Resources:
+
+JWT Auth MERN
+
+Day 3 – Google OAuth
+
+Add Google OAuth login (using passport-google-oauth20 or Firebase Auth).
+
+Store users in MongoDB after first login.
+
+Frontend: “Login with Google” button.
+
+📚 Resources:
+
+Google OAuth in Node
+
+Day 4 – Multi-Tenant Setup
+
+Create Organization/Team model:
+
+{ name, ownerId, members: [{ userId, role }] }
+
+
+Users can create a team, invite members (store invites, skip actual email if short on time).
+
+Backend middleware: check team before serving data.
+
+Frontend: Team dashboard page.
+
+📚 Resources:
+
+Multi-Tenant MongoDB Design
+
+Day 5 – Dashboard UI
+
+Build dashboard layout (sidebar + navbar + main content).
+
+Show sample analytics data in charts + tables.
+
+Role-based UI: Admins see management options, members see limited view.
+
+📚 Resources:
+
+React Admin Dashboard
+
+Day 6 – Roles & Permissions
+
+Implement roles: Admin, Editor, Viewer.
+
+Middleware on backend to check role before API access.
+
+Frontend: Hide/disable buttons based on role.
+
+📚 Resources:
+
+Role-Based Auth in MERN
+
+Day 7 – Real-Time Updates
+
+Add Socket.IO to backend + frontend.
+
+Live updates → when someone adds data, others see immediately.
+
+Example: “Team activity log” showing who added/edited something.
+
+📚 Resources:
+
+Socket.IO MERN Tutorial
+
+🔹 Week 2 – Monetization & Scaling
+Day 8 – Payments (Stripe/Razorpay)
+
+Setup Stripe test mode.
+
+Create plans: Free (basic dashboard), Pro (all features).
+
+Backend: Stripe webhook for subscription status.
+
+Frontend: Billing page with “Upgrade to Pro” button.
+
+📚 Resources:
+
+Stripe Subscriptions in Node
+
+Day 9 – Premium Features
+
+Lock premium features (exports, real-time, AI insights) behind Pro plan.
+
+Show upgrade modal if Free user tries to access.
+
+📚 Resources:
+
+Feature Flags with Stripe
+
+Day 10 – Reports (CSV/PDF Export)
+
+Add backend endpoints to generate CSV + PDF reports.
+
+Use json2csv for CSV, pdfkit for PDF.
+
+Frontend: “Download Report” button.
+
+📚 Resources:
+
+Export CSV in Node
+
+Day 11 – Admin Panel
+
+Admin-only dashboard:
+
+Total users, teams, active subscriptions.
+
+Revenue data (fetched from Stripe).
+
+Churn tracking (count expired users).
+
+📚 Resources:
+
+React Admin Panel
+
+Day 12 – AI Integration
+
+Add AI assistant (OpenAI API or LangChain).
+
+Example:
+
+Users upload CSV → AI generates insights (“Top trends, anomalies”).
+
+Chat assistant inside dashboard: “What’s my team’s activity this week?”
+
+📚 Resources:
+
+LangChain + OpenAI with Node
+
+Day 13 – Deployment
+
+Containerize backend with Docker.
+
+Deploy backend on Render/Heroku.
+
+Deploy frontend on Vercel/Netlify.
+
+Connect custom domain (if possible).
+
+📚 Resources:
+
+Docker MERN
+
+Day 14 – Testing + Polish
+
+Add Jest tests for backend APIs.
+
+Add Cypress tests for frontend flows (login, dashboard, billing).
+
+Write a solid README.md with screenshots + live demo link.
+
+Record a short demo video (2–3 mins) for recruiters.
+
+📚 Resources:

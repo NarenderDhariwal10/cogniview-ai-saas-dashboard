@@ -1,0 +1,52 @@
+# ============================================================
+# Root ignores (apply globally)
+# ============================================================
+
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.*.local
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# ============================================================
+# Client (React + Tailwind)
+# ============================================================
+client/node_modules/
+client/.env
+client/.env.*.local
+client/build/
+client/dist/
+client/.cache/
+client/.next/
+client/out/
+
+# Tailwind JIT cache
+client/.tailwind-cache/
+
+# ============================================================
+# Server (Node.js backend)
+# ============================================================
+server/node_modules/
+server/.env
+server/.env.*.local
+server/build/
+server/dist/
+server/.cache/
