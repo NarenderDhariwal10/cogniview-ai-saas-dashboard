@@ -9,28 +9,35 @@ if (!stripeSecret) {
 }
 const stripe = new Stripe(stripeSecret, { apiVersion: "2023-10-16" });
 
-export const createCheckoutSession = async ({ customerEmail, priceId, metadata = {} }) => {
+// ✅ Create checkout session
+export const createStripeSession = async ({ userId, customerEmail, priceId }) => {
   if (!priceId) throw new Error("priceId is required");
 
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000"; // ✅ fallback to React dev server
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "subscription",
     customer_email: customerEmail,
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${clientUrl}/dashboard?success=true`,
-    cancel_url: `${clientUrl}/billing?canceled=true`,
-    metadata,
+    success_url: `${clientUrl}/payment-success`,
+    cancel_url: `${clientUrl}/payment-cancel`,
+    metadata: {
+      userId: userId.toString(), // ✅ store userId for webhook
+      priceId,                   // ✅ also keep priceId to map plan later
+    },
   });
 
   return session;
 };
 
+// ✅ Retrieve subscription from Stripe
 export const retrieveSubscription = async (subscriptionId) => {
   if (!subscriptionId) throw new Error("subscriptionId required");
   return stripe.subscriptions.retrieve(subscriptionId);
 };
+
+// ✅ List available prices
 export const listPrices = async () => {
   return stripe.prices.list({
     expand: ["data.product"], // include product details

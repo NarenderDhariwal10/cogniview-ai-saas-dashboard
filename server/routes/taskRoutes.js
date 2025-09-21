@@ -55,9 +55,28 @@ router.post("/", protect, async (req, res) => {
 
 // Update task
 router.put("/:id", protect, async (req, res) => {
-  const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.json(task);
+  try {
+    const task = await Task.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    const io = req.app.get("io");
+    if (io && task.organization) {
+      io.to(task.organization.toString()).emit("taskUpdate", {
+        type: "update",
+        task,
+      });
+    }
+
+    res.json(task);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update task" });
+  }
 });
+
 
 // Delete task
 router.delete("/:id", protect, async (req, res) => {

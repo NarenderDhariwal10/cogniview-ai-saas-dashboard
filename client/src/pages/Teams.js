@@ -1,4 +1,3 @@
-// frontend/src/pages/Teams.jsx
 import React, { useEffect, useState } from "react";
 import { getTeams, createTeam } from "../services/api";
 import { io } from "socket.io-client";
@@ -18,7 +17,7 @@ export default function Teams() {
   useEffect(() => {
     fetchTeams();
 
-    const socket = io("http://localhost:4000"); // backend URL
+    const socket = io("http://localhost:4000");
 
     socket.on("teamCreated", (team) => {
       setTeams((prev) => [...prev, team]);
@@ -38,31 +37,31 @@ export default function Teams() {
   }, []);
 
   const fetchTeams = async () => {
-  try {
-    const res = await getTeams();
-    setTeams(res);
-  } catch (err) {
-    console.error("Error fetching teams:", err);
+    try {
+      const res = await getTeams(); // backend uses req.user.orgId
+      setTeams(res);
+    } catch (err) {
+      console.error("Error fetching teams:", err);
 
-    const msg =
-      err.response?.data?.error ||
-      err.response?.data?.message ||
-      "❌ Failed to load teams";
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "❌ Failed to load teams";
 
-    // Special case: no organization
-    if (msg.includes("organization")) {
-      toast.warn("⚠️ You are not part of any organization yet. Ask an admin to invite you.");
-    } else {
-      toast.error(msg);
+      if (msg.includes("organization")) {
+        toast.warn(
+          "⚠️ You are not part of any organization yet. Ask an admin to invite you."
+        );
+      } else {
+        toast.error(msg);
+      }
     }
-  }
-};
-
+  };
 
   const handleCreateTeam = async () => {
     if (!newTeam.trim()) return;
     try {
-      await createTeam({ name: newTeam, orgId: localStorage.getItem("orgId") });
+      await createTeam({ name: newTeam }); // orgId handled in backend
       setNewTeam("");
     } catch (err) {
       console.error("Error creating team:", err);
@@ -75,7 +74,6 @@ export default function Teams() {
     try {
       await API.post("/teams/invite/send", {
         email: inviteEmail,
-        organizationId: localStorage.getItem("orgId"),
         teamId: selectedTeamId,
         role: inviteRole,
       });

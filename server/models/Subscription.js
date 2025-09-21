@@ -9,9 +9,12 @@ const subscriptionSchema = new mongoose.Schema(
     status: { type: String, enum: ["active", "past_due", "canceled", "expired"], default: "active" },
     startDate: { type: Date, default: Date.now },
     endDate: Date,
+    amount: Number,     // <-- add this
+    currency: String,   // <-- optional, useful for multi-currency
   },
   { timestamps: true }
 );
+
 
 const Subscription = mongoose.model("Subscription", subscriptionSchema);
 export default Subscription;

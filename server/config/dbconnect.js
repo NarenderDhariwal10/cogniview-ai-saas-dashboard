@@ -1,4 +1,3 @@
-// server/config/dbconnect.js
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
@@ -7,7 +6,7 @@ const MONGO_URI = process.env.MONGO_URI;
 
 const connectDB = async () => {
   if (!MONGO_URI) {
-    console.error("MONGO_URI not set in environment");
+    console.error("MONGO_URI not set");
     process.exit(1);
   }
   try {
@@ -15,9 +14,9 @@ const connectDB = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("MongoDB connected");
+    console.log(" MongoDB connected");
   } catch (err) {
-    console.error("Failed to connect to MongoDB:", err.message);
+    console.error("MongoDB connection error:", err.message);
     process.exit(1);
   }
 };

@@ -6,7 +6,7 @@ import {
   handleWebhook,
 } from "../controllers/billingController.js";
 import { protect } from "../middleware/authMiddleware.js";
-// server/routes/billingRoutes.js
+
 import { getPrices , getBillingStats} from "../controllers/billingController.js";
 
 

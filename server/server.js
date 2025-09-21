@@ -1,4 +1,3 @@
-// server.js
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -20,29 +19,26 @@ import projectRoutes from "./routes/projectRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import billingRoutes from "./routes/billingRoutes.js";
 import premiumRoutes from "./routes/premiumRoutes.js";
-
 import teamRoutes from "./routes/teamRoutes.js";
 import inviteRoutes from "./routes/inviteRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
-import taskRoutes from "./routes/taskRoutes.js"; // CommonJS import for taskRoutes
+import taskRoutes from "./routes/taskRoutes.js";
 
 import { errorHandler } from "./middleware/errorMiddleware.js";
-import Task from "./models/Task.js";
 import { trackUsage } from "./middleware/analyticsMiddleware.js";
-
+import Task from "./models/Task.js";
+import { handleWebhook } from "./controllers/billingController.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-connectDB();
-
-// Basic middleware	
+// Core middleware
 app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 
-// session for passport OAuth 
+// Sessions for OAuth
 app.use(
   session({
     secret: process.env.JWT_SECRET || "keyboardcat",
@@ -51,17 +47,15 @@ app.use(
   })
 );
 
-// Initialize passport with configured strategies
+// Passport
 configurePassport(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-// We'll mount webhook at /api/billing/webhook
-import { handleWebhook } from "./controllers/billingController.js";
+// Stripe webhook (raw body)
 app.post("/api/billing/webhook", express.raw({ type: "application/json" }), handleWebhook);
 
-
+// JSON parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -76,50 +70,54 @@ app.use("/api/invites", inviteRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/tasks", taskRoutes); // CommonJS import for taskRoutes
-
-// Usage tracking 
-app.use(trackUsage);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/track", trackUsage);
 
 // Error handler
 app.use(errorHandler);
 
-// Socket.IO
+// --- Socket.IO setup ---
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: { origin: "*", methods: ["GET", "POST"] },
 });
 
-
 app.set("io", io);
 
 io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
+  console.log("🔌 Socket connected:", socket.id);
 
   socket.on("joinOrg", (orgId) => {
     socket.join(orgId);
-    console.log("Joined org room", orgId);
+    console.log("Joined org room:", orgId);
   });
 
   socket.on("projectUpdate", ({ orgId, message }) => {
     io.to(orgId).emit("projectUpdate", message);
   });
-  
 
-Task.watch().on("change", (change) => {
-  const orgId = change.fullDocument?.organization;
-  if (orgId) {
-    io.to(orgId.toString()).emit("taskUpdate", {
-      type: change.operationType,
-      task: change.fullDocument,
-    });
-  }
-});
-
+  // Watch Task collection (Mongo change streams)
+  Task.watch().on("change", (change) => {
+    const orgId = change.fullDocument?.organization;
+    if (orgId) {
+      io.to(orgId.toString()).emit("taskUpdate", {
+        type: change.operationType,
+        task: change.fullDocument,
+      });
+    }
+  });
 
   socket.on("disconnect", () => {
-    console.log("Socket disconnected:", socket.id);
+    console.log(" Socket disconnected:", socket.id);
   });
 });
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+connectDB()
+  .then(() => {
+    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error("Failed to connect to MongoDB:", err);
+    process.exit(1);
+  });

@@ -12,6 +12,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area
 } from "recharts";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -72,7 +73,8 @@ export default function Dashboard() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        Welcome back, {user.name} 👋
+        Welcome back, {user?.name || "Guest"} 👋
+ 👋
       </motion.h1>
       <p className="text-gray-600 dark:text-gray-400">
         Real-time overview tailored to your role: <span className="font-medium capitalize">{role}</span>
@@ -191,7 +193,12 @@ export default function Dashboard() {
             {tasks.map((t, i) => (
               <li key={i} className="flex justify-between items-center text-sm">
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" checked={t.done} readOnly className="h-4 w-4 rounded border-gray-300" />
+                  <input
+  type="checkbox"
+  checked={t.done}
+  onChange={() => toggleTask(t)}
+  className="h-4 w-4 rounded border-gray-300"
+/>
                   <span className={t.done ? "line-through text-gray-400" : ""}>{t.title}</span>
                 </div>
                 <span
@@ -231,34 +238,68 @@ function StatCard({ title, value, icon }) {
 }
 
 function QuickActions({ role }) {
+  const navigate = useNavigate();
+
   return (
     <>
       <h2 className="text-lg font-semibold mb-3">Quick Actions</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         {role === "super_admin" && (
           <>
-            <ActionCard icon={<ShieldCheck />} label="System Analytics" desc="Monitor system-wide metrics" />
-            <ActionCard icon={<Building2 />} label="Manage Orgs" desc="View & manage organizations" />
+            <ActionCard
+              icon={<ShieldCheck />}
+              label="System Analytics"
+              desc="Monitor system-wide metrics"
+              onClick={() => navigate("/analytics")}
+            />
+            <ActionCard
+              icon={<Building2 />}
+              label="Manage Orgs"
+              desc="View & manage organizations"
+              onClick={() => navigate("/organization")}
+            />
           </>
         )}
         {role === "org_admin" && (
           <>
-            <ActionCard icon={<PlusCircle />} label="Create Project" desc="Start a new project with your team" />
-            <ActionCard icon={<UserPlus />} label="Invite Members" desc="Add team members to your org" />
-            <ActionCard icon={<BarChart3 />} label="Org Analytics" desc="Monitor your team’s performance" />
+            <ActionCard
+              icon={<PlusCircle />}
+              label="Create Project"
+              desc="Start a new project with your team"
+              onClick={() => navigate("/projects")}
+            />
+            <ActionCard
+              icon={<UserPlus />}
+              label="Invite Members"
+              desc="Add team members to your org"
+              onClick={() => navigate("/teams")}
+            />
+            <ActionCard
+              icon={<BarChart3 />}
+              label="Org Analytics"
+              desc="Monitor your team’s performance"
+              onClick={() => navigate("/analytics")}
+            />
           </>
         )}
         {role === "user" && (
-          <ActionCard icon={<Bot />} label="AI Assistant" desc="Ask AI for insights" />
+          <ActionCard
+            icon={<Bot />}
+            label="AI Assistant"
+            desc="Ask AI for insights"
+            onClick={() => navigate("/ai")}
+          />
         )}
       </div>
     </>
   );
 }
 
-function ActionCard({ icon, label, desc }) {
+
+function ActionCard({ icon, label, desc, onClick }) {
   return (
     <motion.div
+      onClick={onClick}
       className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 border border-gray-100 dark:border-gray-700 hover:shadow-md cursor-pointer"
       whileHover={{ scale: 1.02 }}
     >
@@ -290,3 +331,11 @@ function ChartCard({ title, children }) {
     </div>
   );
 }
+const toggleTask = async (task) => {
+  try {
+    await API.put(`/tasks/${task.id}`, { done: !task.done });
+  } catch (err) {
+    console.error("Failed to toggle task:", err.message || err);
+  }
+};
+

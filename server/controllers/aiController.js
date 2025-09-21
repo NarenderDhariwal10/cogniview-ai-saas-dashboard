@@ -2,6 +2,7 @@ import fs from "fs";
 import csv from "csv-parser";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+import Analytics from "../models/Analytics.js";
 
 dotenv.config();
 
@@ -67,6 +68,12 @@ export const uploadCSVAndAnalyze = async (req, res) => {
           res.status(500).json({ message: "Error generating AI insights", error: err.message });
         }
       });
+      await Analytics.create({
+    user: req.user._id,
+    team: req.user.team,
+    event: "ai_query",
+    metadata: { query: req.body.prompt }
+  });
   } catch (err) {
     res.status(500).json({ message: "Error processing CSV", error: err.message });
   }
@@ -80,6 +87,7 @@ export const chatAssistant = async (req, res) => {
 
     const reply = await callOpenRouter([{ role: "user", content: req.body.message }]);
     res.json({ reply });
+    
   } catch (err) {
     console.error("AI chat error:", err);
     res.status(500).json({ message: "Error with AI chat", error: err.message });
